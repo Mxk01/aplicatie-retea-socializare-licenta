@@ -1,0 +1,113 @@
+.login__container {
+    display:flex;
+    flex-direction: row;
+    height:100vh;
+    width:100vw;
+}
+.login__image {
+    background: url('https://images.unsplash.com/photo-1524293568345-75d62c3664f7?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1911&q=80');
+    height:100vh;
+    width:50vw;
+    background-position:center;
+    background-size:cover;
+}
+.login__form {
+    display:flex;
+    height:100vh;
+    width:50vw;
+
+    justify-content: space-evenly;
+    align-items: center;
+    display:flex;
+    flex-direction:column;
+}
+
+ 
+ 
+.login__submit {
+    width:200px;
+    padding:7px;
+    background-color:rgb(255, 196, 0);
+    color:white;
+    border-radius:25px;
+    outline:none;
+    border:0;
+    cursor:pointer;
+}
+.login__form > div > input {
+    outline:none;
+}
+.login__submit:hover {
+    background-color:rgb(255, 213, 2);
+}
+.login__message {
+ text-transform: uppercase;
+ font-weight:550;
+ color:rgb(120, 58, 255);
+ font-size:2rem;
+}
+.login__confirmMessage{
+    text-decoration: none;
+    color:black;
+  }
+  .login__fields > div {
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .login__fields > input {
+    margin-top:10px;
+  }
+  .login__fields > div >  label {
+     color:rgb(9, 12, 10);
+  }
+  .login__submit {
+    margin-top: 10px;
+  }
+ 
+
+  /* .login__fields > div > input {
+    border:0;
+    margin-left:3px;
+    outline:none;
+    padding:7px;
+    font-size:.9rem;
+    width:20vw;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+
+    background:rgb(232, 240, 254);
+    border-left:3px solid black;
+
+} */
+  .login__password,.login__email{
+    display:flex;
+    justify-content: flex-start;
+    align-items: center;
+  }
+@media only screen and (max-width: 600px) {
+    .login__container{
+        display:flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    .login__image {
+        width:100vw;
+    }
+     .login__submit {
+        width:100px;
+     }
+     .login__form {
+        display:flex;
+        
+        justify-content: center;
+        align-items: center;
+     }
+     .login__message {
+        font-size:1.3rem;
+     }
+     .login__fields > div > input {
+       width:50vw;
+     }
+  }
