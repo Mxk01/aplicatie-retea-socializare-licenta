@@ -2,10 +2,14 @@ let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
 
 let messageSchema = new mongoose.Schema({
+<<<<<<< HEAD
     subject : {
         type:String,
         required:true
     },
+=======
+   
+>>>>>>> 5a35ef5 (=)
     contents: {
         type:String
     },
