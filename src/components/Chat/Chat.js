@@ -1,14 +1,47 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
+import { useNavigate } from 'react-router'
+import axios from 'axios'
 function Chat() {
+  let [currentUsers,setCurrentUsers] = useState([]);
+  let [directMessages,setDirectMessages] = useState([]);
+  let [userToDM,setUserToDM] = useState({});
+  let [user,setCurrentUser]  = useState(JSON.parse(localStorage.getItem('user')));
+  let config = { headers : {'Authorization' : `Bearer ${JSON.parse(localStorage.getItem('user')).data.token}` }}
+  let navigate = useNavigate()
+  
+   useEffect(()=>{
+    //  console.log(user.data.token)
+    let getCurrentUsers = async () => {
+     let users = await axios.get('/api/user/users-list',config);
+     setCurrentUsers(users.data.message)
+    }
+    if(JSON.parse(localStorage.getItem('user')).data.token){
+    getCurrentUsers();
+    
+    }
+     },[user])
     let [message,setMessage] = useState('')
+    let [isDirectMessage,setIsDirectMessage] = useState(false);
     let [messages,setMessages] = useState([]);
-        let sendMessage = (e) => {
-      
+        let sendMessage = async(e) => {
+        let sender = await axios.get('/api/user/get-current-user',config);
+        // senderId
+        console.log(sender.data.currentUser._id);
+        if(userToDM && isDirectMessage){
+          console.log(userToDM._id);
+
+          let directMessage = await axios.post(`/api/user/add-message/${sender.data.currentUser._id}/${userToDM._id}`
+          ,{isDirectMessage:true,contents:message,photoPath:''},config);
+          console.log(directMessage)
+
+        }
+        else { 
+          // do some conditional so it shows empty screen instead of conversation with x,y,z
+        }
         e.preventDefault();
-        
+        let directChatMessages = await axios.get(`/api/user/direct-messages/${sender.data.currentUser._id}/${userToDM._id}`,config);
+        console.log(directChatMessages)
         setMessages([...messages,message]);
-        
-        console.log(messages)
         setMessage('')
         
     }
@@ -28,27 +61,30 @@ function Chat() {
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeLinecap="round"
+                strokeLinejoin="round"
                 strokeWidth="2"
                 d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
               ></path>
             </svg>
           </div>
           <div className="ml-2 font-bold text-2xl">NexoTalk</div>
+         
         </div>
         <div
           className="flex flex-col items-center bg-indigo-100 border border-gray-200 mt-4 w-full py-6 px-4 rounded-lg"
         >
           <div className="h-20 w-20 rounded-full border overflow-hidden">
             <img
-              src="https://www.adelaide.edu.au/newsroom/sites/default/files/styles/ua_image_landscape/public/media/images/2022-03/dog-gbfe9c6841_1920_2.jpg?h=7187ef5e&itok=BSqufkLY"
+              src={JSON.parse(localStorage.getItem('user')).data.profileAvatar}
               alt="Avatar"
+              style={{objectFit:'cover'}}
               className="h-full w-full"
             />
           </div>
-          <div className="text-sm font-semibold mt-2">Dummy User.</div>
+          <div className="text-sm font-semibold mt-2">{JSON.parse(localStorage.getItem('user')).data.username}</div>
           <div className="text-xs text-gray-500">Lead UI/UX Designer</div>
+     
           <div className="flex flex-row items-center mt-3">
             <div
               className="flex flex-col justify-center h-4 w-8 bg-indigo-500 rounded-full"
@@ -57,45 +93,55 @@ function Chat() {
             </div>
             <div className="leading-none ml-1 text-xs">Active</div>
           </div>
+          <button  onClick={()=>{navigate('/')}}className="bg-transparent hover:bg-blue-500 mt-2 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded">
+  Logout
+  
+</button>
         </div>
+
         <div className="flex flex-col mt-8">
           <div className="flex flex-row items-center justify-between text-xs">
             <span className="font-bold">Active Conversations</span>
+          
             <span
               className="flex items-center justify-center bg-gray-300 h-4 w-4 rounded-full"
-              >4</span
+              >{currentUsers.length}</span
             >
           </div>
           <div className="flex flex-col space-y-1 mt-4 -mx-2 h-48 overflow-y-auto">
-            <button
+            {currentUsers!=[] ? currentUsers.map((user)=>{
+                  
+            return <React.Fragment key={user._id}>   
+             <button
+             onClick={()=> { 
+              setUserToDM(user)
+              setIsDirectMessage(true)
+            }
+            }
               className="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2"
             >
               <div
                 className="flex items-center justify-center h-8 w-8 bg-indigo-200 rounded-full"
+                style={{background:`url(${user.profileAvatar})`,backgroundSize:'cover'}}
               >
-                H
-              </div>
-              <div className="ml-2 text-sm font-semibold">Henry Boyd</div>
-            </button>
-            <button
-              className="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2"
-            >
-              <div
-                className="flex items-center justify-center h-8 w-8 bg-gray-200 rounded-full"
-              >
-                M
-              </div>
-              <div className="ml-2 text-sm font-semibold">Marta Curtis</div>
+               </div>
+              <div className="ml-2 text-sm font-semibold">{user.username}</div>
               <div
                 className="flex items-center justify-center ml-auto text-xs text-white bg-red-500 h-4 w-4 rounded leading-none"
               >
-                2
+                1
               </div>
+              <div class="flex space-x-2 justify-center">
+  <button type="button" class="inline-block px-3 ml-2 py-2 bg-green-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-red-700 hover:shadow-lg focus:bg-red-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-800 active:shadow-lg transition duration-150 ease-in-out">Add to group</button>
+</div>
             </button>
+            </React.Fragment>
+            }): <p>No available users</p>}
+            
        
           </div>
           <div className="flex flex-row items-center justify-between text-xs mt-6">
-            <span className="font-bold">Archivied</span>
+            <span className="font-bold">Archived</span>
             <span
               className="flex items-center justify-center bg-gray-300 h-4 w-4 rounded-full"
               >7</span
@@ -125,22 +171,22 @@ function Chat() {
                 {messages ?  messages.map( (message) =>  {
                     return( 
                <React.Fragment>  
+                
              <div className="col-start-1 col-end-8 p-3 rounded-lg">
+           
                   <div className="flex flex-row items-center">
-                    <div
-                      className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0"
-                    >
-                      A
-                    </div>
+                  <img src={"https://preview.redd.it/mo7610lfo2b81.jpg?width=400&format=pjpg&auto=webp&s=4f8e94bc02fb628dd5d724f312637503a895921e"} 
+                   className=' object-cover h-10 w-10 rounded-full'/>
+                     
                     <div
                       className="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl"
                     >
-                      <div>{message}</div>
+                      <p className='break-words	w-96	'>{message}</p>
                     </div>
                   </div>
                 </div>
             
-                {/* <div className="col-start-6 col-end-13 p-3 rounded-lg">
+                <div className="col-start-6 col-end-13 p-3 rounded-lg">
                   <div className="flex items-center justify-start flex-row-reverse">
                     <div
                       className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0"
@@ -160,7 +206,7 @@ function Chat() {
                       </div>
                     </div>
                   </div>
-                </div> */}
+                </div>
                 </React.Fragment>
                 )
                 }):''}
@@ -182,8 +228,8 @@ function Chat() {
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                     strokeWidth="2"
                     d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
                   ></path>
@@ -209,8 +255,8 @@ function Chat() {
                     xmlns="http://www.w3.org/2000/svg"
                   >
                     <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
                       strokeWidth="2"
                       d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                     ></path>
